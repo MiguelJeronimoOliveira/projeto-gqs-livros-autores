@@ -1,0 +1,105 @@
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3>Cadastrar Novo Livro</h3>
+            </div>
+            <div class="card-body">
+                <form id="livroForm" action="/api/livros" method="POST">
+                    <div class="mb-3">
+                        <label for="titulo" class="form-label">Título *</label>
+                        <input type="text" class="form-control" id="titulo" name="titulo" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="isbn" class="form-label">ISBN</label>
+                        <input type="text" class="form-control" id="isbn" name="isbn">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="ano_publicacao" class="form-label">Ano de Publicação</label>
+                        <input type="number" class="form-control" id="ano_publicacao" name="ano_publicacao" min="1000" max="2024">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="genero" class="form-label">Gênero</label>
+                        <input type="text" class="form-control" id="genero" name="genero">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="numero_paginas" class="form-label">Número de Páginas</label>
+                        <input type="number" class="form-control" id="numero_paginas" name="numero_paginas" min="1">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="autor_id" class="form-label">Autor *</label>
+                        <select class="form-control" id="autor_id" name="autor_id" required>
+                            <option value="">Selecione um autor</option>
+                            <% autores.forEach(autor => { %>
+                                <option value="<%= autor.id %>"><%= autor.nome %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="button" class="btn btn-secondary me-md-2" onclick="history.back()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar Livro</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="alert alert-success alert-dismissible fade" id="successAlert" role="alert" style="display: none;">
+    <strong>Sucesso!</strong> Livro cadastrado com sucesso.
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+
+<div class="alert alert-danger alert-dismissible fade" id="errorAlert" role="alert" style="display: none;">
+    <strong>Erro!</strong> <span id="errorMessage"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+
+<script>
+document.getElementById('livroForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData);
+    
+    // Converter campos numéricos
+    if (data.ano_publicacao) data.ano_publicacao = parseInt(data.ano_publicacao);
+    if (data.numero_paginas) data.numero_paginas = parseInt(data.numero_paginas);
+    if (data.autor_id) data.autor_id = parseInt(data.autor_id);
+    
+    try {
+        const response = await fetch('/api/livros', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+            document.getElementById('successAlert').style.display = 'block';
+            document.getElementById('successAlert').classList.add('show');
+            this.reset();
+            setTimeout(() => {
+                document.getElementById('successAlert').style.display = 'none';
+            }, 3000);
+        } else {
+            const error = await response.json();
+            document.getElementById('errorMessage').textContent = error.error;
+            document.getElementById('errorAlert').style.display = 'block';
+            document.getElementById('errorAlert').classList.add('show');
+        }
+    } catch (error) {
+        document.getElementById('errorMessage').textContent = 'Erro de conexão';
+        document.getElementById('errorAlert').style.display = 'block';
+        document.getElementById('errorAlert').classList.add('show');
+    }
+});
+</script>
+

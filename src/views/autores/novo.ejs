@@ -1,0 +1,85 @@
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3>Cadastrar Novo Autor</h3>
+            </div>
+            <div class="card-body">
+                <form id="autorForm" action="/api/autores" method="POST">
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome *</label>
+                        <input type="text" class="form-control" id="nome" name="nome" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="nacionalidade" class="form-label">Nacionalidade</label>
+                        <input type="text" class="form-control" id="nacionalidade" name="nacionalidade">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="data_nascimento" class="form-label">Data de Nascimento</label>
+                        <input type="date" class="form-control" id="data_nascimento" name="data_nascimento">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="biografia" class="form-label">Biografia</label>
+                        <textarea class="form-control" id="biografia" name="biografia" rows="4"></textarea>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="button" class="btn btn-secondary me-md-2" onclick="history.back()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar Autor</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="alert alert-success alert-dismissible fade" id="successAlert" role="alert" style="display: none;">
+    <strong>Sucesso!</strong> Autor cadastrado com sucesso.
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+
+<div class="alert alert-danger alert-dismissible fade" id="errorAlert" role="alert" style="display: none;">
+    <strong>Erro!</strong> <span id="errorMessage"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+
+<script>
+document.getElementById('autorForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData);
+    
+    try {
+        const response = await fetch('/api/autores', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+            document.getElementById('successAlert').style.display = 'block';
+            document.getElementById('successAlert').classList.add('show');
+            this.reset();
+            setTimeout(() => {
+                document.getElementById('successAlert').style.display = 'none';
+            }, 3000);
+        } else {
+            const error = await response.json();
+            document.getElementById('errorMessage').textContent = error.error;
+            document.getElementById('errorAlert').style.display = 'block';
+            document.getElementById('errorAlert').classList.add('show');
+        }
+    } catch (error) {
+        document.getElementById('errorMessage').textContent = 'Erro de conexão';
+        document.getElementById('errorAlert').style.display = 'block';
+        document.getElementById('errorAlert').classList.add('show');
+    }
+});
+</script>
+
